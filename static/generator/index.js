@@ -1,7 +1,7 @@
 const canvas = document.getElementById("meme-canvas");
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
-const fistImageTemplate = createImage("/fist.svg");
-const laserImageTemplate = createImage("/laser.svg");
+const fistImageTemplate = createImage("./fist.svg");
+const laserImageTemplate = createImage("./laser.svg");
 
 let canvasImage = new Image();
 let elements = [];
