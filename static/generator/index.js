@@ -132,8 +132,9 @@ function deleteLastElement(type) {
 }
 
 function resetCanvas() {
+    console.log('Reset button clicked');
     elements = [];
-    drawCanvas(); // Clear the canvas and redraw background image if needed
+    drawCanvas();
     if (canvasImage.src) {
         ctx.drawImage(canvasImage, 0, 0, canvas.width, canvas.height);
     }
@@ -195,8 +196,8 @@ function handleTouchStart(e) {
 }
 
 function handleTouchMove(e) {
+    e.preventDefault();
     if (isDragging && currentElement) {
-        e.preventDefault();
         const { mouseX, mouseY } = getTouchPosition(e);
         currentElement.x = mouseX - (currentElement.width * currentElement.scale) / 2 - offsetX;
         currentElement.y = mouseY - (currentElement.height * currentElement.scale) / 2 - offsetY;
@@ -211,37 +212,28 @@ function handleTouchEnd() {
 
 function getMousePosition(e) {
     const rect = canvas.getBoundingClientRect();
-    return {
-        mouseX: e.clientX - rect.left,
-        mouseY: e.clientY - rect.top
-    };
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    return { mouseX, mouseY };
 }
 
 function getTouchPosition(e) {
-    const touch = e.touches[0];
     const rect = canvas.getBoundingClientRect();
-    return {
-        mouseX: touch.clientX - rect.left,
-        mouseY: touch.clientY - rect.top
-    };
+    const touch = e.touches[0];
+    const mouseX = touch.clientX - rect.left;
+    const mouseY = touch.clientY - rect.top;
+    return { mouseX, mouseY };
 }
 
-function findElement(mouseX, mouseY) {
-    const sortedElements = elements.slice().reverse(); // Reverse to have topmost elements first
-
-    return sortedElements.find(element => {
-        const centerX = element.x + (element.width * element.scale) / 2;
-        const centerY = element.y + (element.height * element.scale) / 2;
-        const hitSize = Math.max(element.width, element.height) * 0.25;
-        return (
-            mouseX > centerX - hitSize &&
-            mouseX < centerX + hitSize &&
-            mouseY > centerY - hitSize &&
-            mouseY < centerY + hitSize
-        );
+function findElement(x, y) {
+    return elements.find(element => {
+        const elementCenterX = element.x + (element.width * element.scale) / 2;
+        const elementCenterY = element.y + (element.height * element.scale) / 2;
+        const distance = Math.sqrt((x - elementCenterX) ** 2 + (y - elementCenterY) ** 2);
+        return distance < Math.max(element.width, element.height) * element.scale / 2;
     });
 }
 
 function displayButtonContainer() {
-    document.getElementById("button-container").style.display = "grid";
+    document.getElementById("button-container").style.display = "block";
 }
