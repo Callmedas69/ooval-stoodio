@@ -107,10 +107,22 @@ function updateLaserHue(hue) {
 }
 
 function resizeElements(e, type) {
-    const scale = e.target.value;
+    const newScale = e.target.value;
     elements.forEach(element => {
         if (element.type === type) {
-            element.scale = scale;
+            // Calculate the scaling factor
+            const scalingFactor = newScale / element.scale;
+
+            // Update the scale
+            element.scale = newScale;
+
+            // Adjust the position to keep the element in place
+            element.x -= (element.width * (scalingFactor - 1)) / 2;
+            element.y -= (element.height * (scalingFactor - 1)) / 2;
+
+            // Update width and height based on the new scale
+            element.width *= scalingFactor;
+            element.height *= scalingFactor;
         }
     });
     drawCanvas();
@@ -229,11 +241,11 @@ function findElement(x, y) {
     return elements.find(element => {
         const elementCenterX = element.x + (element.width * element.scale) / 2;
         const elementCenterY = element.y + (element.height * element.scale) / 2;
-        const distance = Math.sqrt((x - elementCenterX) ** 2 + (y - elementCenterY) ** 2);
-        return distance < Math.max(element.width, element.height) * element.scale / 2;
+        return (
+            x >= elementCenterX - (element.width * element.scale) / 2 &&
+            x <= elementCenterX + (element.width * element.scale) / 2 &&
+            y >= elementCenterY - (element.height * element.scale) / 2 &&
+            y <= elementCenterY + (element.height * element.scale) / 2
+        );
     });
-}
-
-function displayButtonContainer() {
-    document.getElementById("button-container").style.display = "block";
 }
