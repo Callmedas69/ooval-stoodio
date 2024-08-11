@@ -11,7 +11,6 @@ let offsetX, offsetY;
 let laserHue = 0; // Variable to store laser hue value
 let fistHue = 0; // Variable to store fist hue value
 
-
 canvas.width = 400;
 canvas.height = 400;
 
@@ -28,7 +27,6 @@ document.getElementById("reset-button").addEventListener("click", resetCanvas);
 document.getElementById("download-button").addEventListener("click", downloadCanvas);
 document.getElementById("hue-slider").addEventListener("input", (e) => updateLaserHue(e.target.value));
 document.getElementById("fist-hue-slider").addEventListener("input", (e) => updateFistHue(e.target.value));
-
 
 canvas.addEventListener("mousedown", handleMouseDown);
 canvas.addEventListener("mousemove", handleMouseMove);
@@ -98,7 +96,7 @@ function drawCanvas() {
     }
     elements.forEach(element => {
         ctx.save();
-        ctx.translate(element.x + element.width / 2, element.y + element.height / 2);
+        ctx.translate(element.x + (element.width * element.scale) / 2, element.y + (element.height * element.scale) / 2);
         ctx.rotate(element.rotation * Math.PI / 180);
         ctx.scale(element.scale, element.scale);
         ctx.filter = element.type === 'laser' ? `hue-rotate(${laserHue}deg)` :
@@ -108,12 +106,10 @@ function drawCanvas() {
     });
 }
 
-
 function updateFistHue(hue) {
     fistHue = hue;
     drawCanvas();
 }
-
 
 function updateLaserHue(hue) {
     laserHue = hue;
@@ -170,16 +166,18 @@ function handleMouseDown(e) {
 
     if (currentElement) {
         isDragging = true;
-        offsetX = mouseX - currentElement.x;
-        offsetY = mouseY - currentElement.y;
+        const centerX = currentElement.x + (currentElement.width * currentElement.scale) / 2;
+        const centerY = currentElement.y + (currentElement.height * currentElement.scale) / 2;
+        offsetX = mouseX - centerX;
+        offsetY = mouseY - centerY;
     }
 }
 
 function handleMouseMove(e) {
     if (isDragging && currentElement) {
         const { mouseX, mouseY } = getMousePosition(e);
-        currentElement.x = mouseX - offsetX;
-        currentElement.y = mouseY - offsetY;
+        currentElement.x = mouseX - (currentElement.width * currentElement.scale) / 2 - offsetX;
+        currentElement.y = mouseY - (currentElement.height * currentElement.scale) / 2 - offsetY;
         drawCanvas();
     }
 }
@@ -196,8 +194,10 @@ function handleTouchStart(e) {
 
     if (currentElement) {
         isDragging = true;
-        offsetX = mouseX - currentElement.x;
-        offsetY = mouseY - currentElement.y;
+        const centerX = currentElement.x + (currentElement.width * currentElement.scale) / 2;
+        const centerY = currentElement.y + (currentElement.height * currentElement.scale) / 2;
+        offsetX = mouseX - centerX;
+        offsetY = mouseY - centerY;
     }
 }
 
@@ -205,8 +205,8 @@ function handleTouchMove(e) {
     if (isDragging && currentElement) {
         e.preventDefault();
         const { mouseX, mouseY } = getTouchPosition(e);
-        currentElement.x = mouseX - offsetX;
-        currentElement.y = mouseY - offsetY;
+        currentElement.x = mouseX - (currentElement.width * currentElement.scale) / 2 - offsetX;
+        currentElement.y = mouseY - (currentElement.height * currentElement.scale) / 2 - offsetY;
         drawCanvas();
     }
 }
@@ -234,14 +234,17 @@ function getTouchPosition(e) {
 }
 
 function findElement(mouseX, mouseY) {
-    return elements.find(element =>
-        mouseX > element.x &&
-        mouseX < element.x + element.width &&
-        mouseY > element.y &&
-        mouseY < element.y + element.height
-    );
-}
-
-function displayButtonContainer() {
-    document.getElementById("button-container").style.display = "grid";
+    const hitArea = 0.25; // 25% hit area
+    return elements.find(element => {
+        const centerX = element.x + (element.width * element.scale) / 2;
+        const centerY = element.y + (element.height * element.scale) / 2;
+        const hitWidth = element.width * element.scale * hitArea;
+        const hitHeight = element.height * element.scale * hitArea;
+        return (
+            mouseX > centerX - hitWidth / 2 &&
+            mouseX < centerX + hitWidth / 2 &&
+            mouseY > centerY - hitHeight / 2 &&
+            mouseY < centerY + hitHeight / 2
+        );
+    });
 }
