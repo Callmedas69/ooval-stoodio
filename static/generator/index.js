@@ -79,16 +79,6 @@ function addElement(image, type) {
     drawCanvas();
 }
 
-function drawCanvasImage(src) {
-    const img = new Image();
-    img.src = src;
-    img.onload = function () {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        drawCanvas();
-    };
-    img.onerror = () => console.error('Failed to load canvas image');
-}
-
 function drawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (canvasImage.src) {
@@ -234,7 +224,6 @@ function getTouchPosition(e) {
 }
 
 function findElement(mouseX, mouseY) {
-    // Sort elements to prioritize elements that are visually on top
     const sortedElements = elements.slice().reverse(); // Reverse to have topmost elements first
 
     return sortedElements.find(element => {
