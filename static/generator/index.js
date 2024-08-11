@@ -92,29 +92,20 @@ function drawCanvasImage(src) {
 }
 
 function drawCanvas() {
-    try {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (canvasImage.src) {
-            ctx.drawImage(canvasImage, 0, 0, canvas.width, canvas.height);
-        }
-        elements.forEach(element => {
-            ctx.save();
-            ctx.translate(element.x + element.width / 2, element.y + element.height / 2);
-            ctx.rotate(element.rotation * Math.PI / 180);
-            ctx.scale(element.scale, element.scale);
-            if (element.type === 'laser') {
-                ctx.filter = `hue-rotate(${laserHue}deg)`;
-            } else if (element.type === 'fist') {
-                ctx.filter = `hue-rotate(${fistHue}deg)`;
-            } else {
-                ctx.filter = 'none'; // Reset filter for other elements
-            }
-            ctx.drawImage(element.image, -element.width / 2, -element.height / 2);
-            ctx.restore();
-        });
-    } catch (error) {
-        console.error('Error drawing canvas:', error);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (canvasImage.src) {
+        ctx.drawImage(canvasImage, 0, 0, canvas.width, canvas.height);
     }
+    elements.forEach(element => {
+        ctx.save();
+        ctx.translate(element.x + element.width / 2, element.y + element.height / 2);
+        ctx.rotate(element.rotation * Math.PI / 180);
+        ctx.scale(element.scale, element.scale);
+        ctx.filter = element.type === 'laser' ? `hue-rotate(${laserHue}deg)` :
+                     element.type === 'fist' ? `hue-rotate(${fistHue}deg)` : 'none';
+        ctx.drawImage(element.image, -element.width / 2, -element.height / 2);
+        ctx.restore();
+    });
 }
 
 
