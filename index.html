@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Ooval Stoodio</title>
+    <link rel="stylesheet" href="/static/styles/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="logo.png" alt="Logo" class="logo">
+            <h1>TTS Ooval Stoodio</h1>
+        </div>
+        <h2>Craft Your Own Meme</h2>
+    </header>
+    <main>
+        <div class="upload-container">
+            <label for="image-upload" class="button">Upload Image</label>
+            <input type="file" id="image-upload" accept="image/*" />
+        </div>
+        <div class="canvas-container">
+            <canvas id="meme-canvas"></canvas>
+        </div>
+        <div class="controls">
+           
+            <div id="button-container" class="button-group" role="group" aria-label="Meme control buttons">
+                <button id="add-fist-button" class="button" aria-label="Add Fist">Add Fist</button>
+                <button id="delete-fist-button" class="button" aria-label="Delete Fist">Delete Fist</button>
+                <button id="add-laser-button" class="button" aria-label="Add Laser">Add Laser</button>
+                <button id="delete-laser-button" class="button" aria-label="Delete Laser">Delete Laser</button>
+                <button id="reset-button" class="button" aria-label="Reset Canvas">Reset</button>
+                <button id="download-button" class="button" aria-label="Save Meme">Save</button>
+            </div>
+            <div class="sliders">
+                <!-- Existing sliders... -->
+                <label for="resize-fist-slider">~ Resize Fist ~</label>
+                <input type="range" id="resize-fist-slider" min="0.5" max="2" step="0.1" value="1">
+                <label for="rotate-fist-slider">~ Rotate Fist ~</label>
+                <input type="range" id="rotate-fist-slider" min="-360" max="360" step="1" value="0">
+                <label for="fist-hue-slider">Colorfy Fist :</label>
+                <input type="range" id="fist-hue-slider" min="0" max="360" value="0" step="1">
+                <label for="resize-laser-slider">~ Resize Laser ~</label>
+                <input type="range" id="resize-laser-slider" min="0.5" max="2" step="0.1" value="1">
+                <label for="rotate-laser-slider">~ Rotate Laser ~</label>
+                <input type="range" id="rotate-laser-slider" min="0" max="360" step="1" value="0">
+                <label for="hue-slider">Colorfy Laser :</label>
+                <input type="range" id="hue-slider" min="0" max="360" value="0" step="1">
+            </div>
+            
+        </div>
+    </main>
+    <script src="/static/generator/index.js"></script>
+</body>
+</html>
