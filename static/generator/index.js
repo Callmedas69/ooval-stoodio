@@ -133,7 +133,10 @@ function deleteLastElement(type) {
 
 function resetCanvas() {
     elements = [];
-    drawCanvasImage(canvasImage.src); // Redraw the background image
+    drawCanvas(); // Clear the canvas and redraw background image if needed
+    if (canvasImage.src) {
+        ctx.drawImage(canvasImage, 0, 0, canvas.width, canvas.height);
+    }
 }
 
 function downloadCanvas() {
