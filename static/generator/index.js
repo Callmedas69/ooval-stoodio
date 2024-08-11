@@ -234,17 +234,22 @@ function getTouchPosition(e) {
 }
 
 function findElement(mouseX, mouseY) {
-    const hitArea = 0.25; // 25% hit area
-    return elements.find(element => {
+    // Sort elements to prioritize elements that are visually on top
+    const sortedElements = elements.slice().reverse(); // Reverse to have topmost elements first
+
+    return sortedElements.find(element => {
         const centerX = element.x + (element.width * element.scale) / 2;
         const centerY = element.y + (element.height * element.scale) / 2;
-        const hitWidth = element.width * element.scale * hitArea;
-        const hitHeight = element.height * element.scale * hitArea;
+        const hitSize = Math.max(element.width, element.height) * 0.25;
         return (
-            mouseX > centerX - hitWidth / 2 &&
-            mouseX < centerX + hitWidth / 2 &&
-            mouseY > centerY - hitHeight / 2 &&
-            mouseY < centerY + hitHeight / 2
+            mouseX > centerX - hitSize &&
+            mouseX < centerX + hitSize &&
+            mouseY > centerY - hitSize &&
+            mouseY < centerY + hitSize
         );
     });
+}
+
+function displayButtonContainer() {
+    document.getElementById("button-container").style.display = "grid";
 }
