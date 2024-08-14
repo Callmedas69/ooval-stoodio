@@ -31,8 +31,8 @@ document.getElementById("fist-hue-slider").addEventListener("input", (e) => upda
 canvas.addEventListener("mousedown", handleMouseDown);
 canvas.addEventListener("mousemove", handleMouseMove);
 canvas.addEventListener("mouseup", handleMouseUp);
-canvas.addEventListener("touchstart", handleTouchStart);
-canvas.addEventListener("touchmove", handleTouchMove);
+canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
 canvas.addEventListener("touchend", handleTouchEnd);
 
 function createImage(src) {
@@ -54,6 +54,9 @@ function handleImageUpload(e) {
                 canvasImage.src = event.target.result;
                 canvasImage.onload = () => {
                     console.log('Canvas image loaded');
+                    // Ensure the canvas is resized to fit the uploaded image
+                    canvas.width = canvasImage.width;
+                    canvas.height = canvasImage.height;
                     drawCanvas();
                 };
                 canvasImage.onerror = (err) => console.error('Failed to load canvas image', err);
@@ -67,7 +70,6 @@ function handleImageUpload(e) {
         console.warn('No file selected');
     }
 }
-
 
 function displayButtonContainer() {
     document.getElementById("button-container").style.display = "flex";
@@ -173,6 +175,7 @@ function handleMouseUp() {
 }
 
 function handleTouchStart(e) {
+    e.preventDefault(); // Prevent default behavior
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
     const touchX = touch.clientX - rect.left;
@@ -181,6 +184,7 @@ function handleTouchStart(e) {
 }
 
 function handleTouchMove(e) {
+    e.preventDefault(); // Prevent default behavior
     if (isDragging) {
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
@@ -190,7 +194,8 @@ function handleTouchMove(e) {
     }
 }
 
-function handleTouchEnd() {
+function handleTouchEnd(e) {
+    e.preventDefault(); // Prevent default behavior
     stopDragging();
 }
 
