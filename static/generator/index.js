@@ -44,14 +44,20 @@ function createImage(src) {
 }
 
 function handleImageUpload(e) {
+    console.log('Image upload event triggered');
     const file = e.target.files[0];
     if (file) {
+        console.log('File selected:', file.name);
         const reader = new FileReader();
         reader.onload = function (event) {
             try {
+                console.log('File read successfully');
                 displayButtonContainer();
                 canvasImage.src = event.target.result;
-                canvasImage.onload = () => drawCanvas();
+                canvasImage.onload = () => {
+                    console.log('Image loaded onto canvas');
+                    drawCanvas();
+                };
                 canvasImage.onerror = () => console.error('Failed to load canvas image');
             } catch (error) {
                 console.error('Error processing image:', error);
@@ -63,6 +69,7 @@ function handleImageUpload(e) {
         console.warn('No file selected');
     }
 }
+
 
 function addElement(image, type) {
     const element = {
