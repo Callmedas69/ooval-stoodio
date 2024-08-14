@@ -8,8 +8,8 @@ let elements = [];
 let isDragging = false;
 let currentElement = null;
 let offsetX, offsetY;
-let laserHue = 0; // Variable to store laser hue value
-let fistHue = 0; // Variable to store fist hue value
+let laserHue = 0;
+let fistHue = 0;
 
 canvas.width = 400;
 canvas.height = 400;
@@ -44,20 +44,14 @@ function createImage(src) {
 }
 
 function handleImageUpload(e) {
-    console.log('Image upload event triggered');
     const file = e.target.files[0];
     if (file) {
-        console.log('File selected:', file.name);
         const reader = new FileReader();
         reader.onload = function (event) {
             try {
-                console.log('File read successfully');
                 displayButtonContainer();
                 canvasImage.src = event.target.result;
-                canvasImage.onload = () => {
-                    console.log('Image loaded onto canvas');
-                    drawCanvas();
-                };
+                canvasImage.onload = () => drawCanvas();
                 canvasImage.onerror = () => console.error('Failed to load canvas image');
             } catch (error) {
                 console.error('Error processing image:', error);
@@ -70,6 +64,9 @@ function handleImageUpload(e) {
     }
 }
 
+function displayButtonContainer() {
+    document.getElementById("button-container").style.display = "flex";
+}
 
 function addElement(image, type) {
     const element = {
@@ -117,17 +114,10 @@ function resizeElements(e, type) {
     const newScale = e.target.value;
     elements.forEach(element => {
         if (element.type === type) {
-            // Calculate the scaling factor
             const scalingFactor = newScale / element.scale;
-
-            // Update the scale
             element.scale = newScale;
-
-            // Adjust the position to keep the element in place
             element.x -= (element.width * (scalingFactor - 1)) / 2;
             element.y -= (element.height * (scalingFactor - 1)) / 2;
-
-            // Update width and height based on the new scale
             element.width *= scalingFactor;
             element.height *= scalingFactor;
         }
@@ -151,108 +141,75 @@ function deleteLastElement(type) {
 }
 
 function resetCanvas() {
-    console.log('Reset button clicked');
     elements = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawCanvas();
-    if (canvasImage.src) {
-        ctx.drawImage(canvasImage, 0, 0, canvas.width, canvas.height);
-    }
 }
 
 function downloadCanvas() {
-    try {
-        const imageDataUrl = canvas.toDataURL();
-        const link = document.createElement("a");
-        link.href = imageDataUrl;
-        link.download = "fist-studio.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        console.error('Error saving canvas:', error);
-    }
+    const link = document.createElement("a");
+    link.download = "meme.png";
+    link.href = canvas.toDataURL();
+    link.click();
 }
 
 function handleMouseDown(e) {
-    const { mouseX, mouseY } = getMousePosition(e);
-    currentElement = findElement(mouseX, mouseY);
-
-    if (currentElement) {
-        isDragging = true;
-        const centerX = currentElement.x + (currentElement.width * currentElement.scale) / 2;
-        const centerY = currentElement.y + (currentElement.height * currentElement.scale) / 2;
-        offsetX = mouseX - centerX;
-        offsetY = mouseY - centerY;
-    }
+    startDragging(e.offsetX, e.offsetY);
 }
 
 function handleMouseMove(e) {
-    if (isDragging && currentElement) {
-        const { mouseX, mouseY } = getMousePosition(e);
-        currentElement.x = mouseX - (currentElement.width * currentElement.scale) / 2 - offsetX;
-        currentElement.y = mouseY - (currentElement.height * currentElement.scale) / 2 - offsetY;
-        drawCanvas();
+    if (isDragging) {
+        dragElement(e.offsetX, e.offsetY);
     }
 }
 
 function handleMouseUp() {
-    isDragging = false;
-    currentElement = null;
+    stopDragging();
 }
 
 function handleTouchStart(e) {
-    e.preventDefault();
-    const { mouseX, mouseY } = getTouchPosition(e);
-    currentElement = findElement(mouseX, mouseY);
-
-    if (currentElement) {
-        isDragging = true;
-        const centerX = currentElement.x + (currentElement.width * currentElement.scale) / 2;
-        const centerY = currentElement.y + (currentElement.height * currentElement.scale) / 2;
-        offsetX = mouseX - centerX;
-        offsetY = mouseY - centerY;
-    }
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    startDragging(touchX, touchY);
 }
 
 function handleTouchMove(e) {
-    e.preventDefault();
-    if (isDragging && currentElement) {
-        const { mouseX, mouseY } = getTouchPosition(e);
-        currentElement.x = mouseX - (currentElement.width * currentElement.scale) / 2 - offsetX;
-        currentElement.y = mouseY - (currentElement.height * currentElement.scale) / 2 - offsetY;
-        drawCanvas();
+    if (isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const touchX = touch.clientX - rect.left;
+        const touchY = touch.clientY - rect.top;
+        dragElement(touchX, touchY);
     }
 }
 
 function handleTouchEnd() {
+    stopDragging();
+}
+
+function startDragging(x, y) {
+    elements.forEach(element => {
+        if (x >= element.x && x <= element.x + element.width * element.scale &&
+            y >= element.y && y <= element.y + element.height * element.scale) {
+            isDragging = true;
+            currentElement = element;
+            offsetX = x - element.x;
+            offsetY = y - element.y;
+        }
+    });
+}
+
+function dragElement(x, y) {
+    if (currentElement) {
+        currentElement.x = x - offsetX;
+        currentElement.y = y - offsetY;
+        drawCanvas();
+    }
+}
+
+function stopDragging() {
     isDragging = false;
     currentElement = null;
-}
-
-function getMousePosition(e) {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    return { mouseX, mouseY };
-}
-
-function getTouchPosition(e) {
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    const mouseX = touch.clientX - rect.left;
-    const mouseY = touch.clientY - rect.top;
-    return { mouseX, mouseY };
-}
-
-function findElement(x, y) {
-    return elements.find(element => {
-        const elementCenterX = element.x + (element.width * element.scale) / 2;
-        const elementCenterY = element.y + (element.height * element.scale) / 2;
-        return (
-            x >= elementCenterX - (element.width * element.scale) / 2 &&
-            x <= elementCenterX + (element.width * element.scale) / 2 &&
-            y >= elementCenterY - (element.height * element.scale) / 2 &&
-            y <= elementCenterY + (element.height * element.scale) / 2
-        );
-    });
 }
